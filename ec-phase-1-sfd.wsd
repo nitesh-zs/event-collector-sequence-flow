@@ -1,0 +1,26 @@
+@startuml "EC Phase-1"
+
+header <nitesh.saxena@zopsmart.com>
+footer page %page% of %lastpage%
+
+title "Event Collector Phase-1"
+
+participant "Pre-Processor\n(source of Venus data)" as pp
+queue "EMS" as ems
+participant "Event Collector" as ec 
+queue "Azure Eventhub" as eh 
+
+ec ->> ems : continually listen for messages
+pp ->> ems : send IMF data
+
+group New Data Receieved from Venus
+    ec -> ems : fetch IMF data
+    ems -> ec : IMF data
+    ec -> ec : process data (look for NEW IMF events,\n convert XML to JSON)
+    ec ->> eh : publish new events
+
+end
+
+ec ->> ems : continue listening for new messages
+
+@enduml

@@ -1,0 +1,28 @@
+@startuml "EC Phase-2"
+
+header <nitesh.saxena@zopsmart.com>
+footer page %page% of %lastpage%
+
+title "Event Collector Phase-2"
+
+participant "Assortment Manager" as am
+participant "Event Collector" as ec
+database "Synapse" as sy 
+queue "Azure Eventhub" as eh 
+
+group Batch Process
+    ec -> am : GET /assortment-items data\nFilters: Status=PENDING, FCLocation
+    am -> ec : assortment-items
+    loop for each assortment-item
+        ec -> sy : query BOH with respect to skuID and FC Location
+        sy -> ec : BOH data
+        
+        group if BOH > 0
+            ec ->> eh : publish new event
+        end
+
+    end
+
+end
+
+@enduml
